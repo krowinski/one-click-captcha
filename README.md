@@ -14,7 +14,7 @@ The size and colors of the image and the circles are configurable parameters.
 ```bash
 composer require krowinski/one-click-captcha
 ```
-###### 2. example ###### 
+###### 2. example ######
 
 ```php
 
