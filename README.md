@@ -1,5 +1,4 @@
-OneClick captcha 
-######
+# OneClick captcha 
 
 [![Build Status](https://travis-ci.org/krowinski/one-click-captcha.svg?branch=1.2)](https://travis-ci.org/krowinski/one-click-captcha)
 [![Latest Stable Version](https://poser.pugx.org/krowinski/one-click-captcha/v/stable)](https://packagist.org/packages/krowinski/one-click-captcha) [![Total Downloads](https://poser.pugx.org/krowinski/one-click-captcha/downloads)](https://packagist.org/packages/krowinski/one-click-captcha) [![Latest Unstable Version](https://poser.pugx.org/krowinski/one-click-captcha/v/unstable)](https://packagist.org/packages/krowinski/one-click-captcha) [![License](https://poser.pugx.org/krowinski/one-click-captcha/license)](https://packagist.org/packages/krowinski/one-click-captcha)
