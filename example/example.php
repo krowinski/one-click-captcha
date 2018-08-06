@@ -1,23 +1,29 @@
 <?php
+declare(strict_types=1);
+
+use OneClickCaptcha\Service\OneClickCaptchaServiceFactory;
+
 include __DIR__ . '/../vendor/autoload.php';
 
+ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-$OneClickCaptchaServiceFactory = new \OneClickCaptcha\Service\OneClickCaptchaServiceFactory();
+$OneClickCaptchaServiceFactory = new OneClickCaptchaServiceFactory();
 $oneClickCaptcha = $OneClickCaptchaServiceFactory->getOneClickCaptcha();
 
 // simple demonstration!
-$request = isset($_GET['get_captcha']) ? $_GET['get_captcha'] : '';
+$request = $_GET['get_captcha'] ?? '';
 if ($request === 'true') {
-    $oneClickCaptcha->showCaptcha();
-} else {
-    if (isset($_REQUEST['position'][0], $_REQUEST['position'][1])) {
-        if (true === $oneClickCaptcha->validate($_REQUEST['position'][0], $_REQUEST['position'][1])) {
-
-            echo '<h3>You are human!!</h3>';
-        } else {
-            echo '<h3>Wrong!</h3>';
-        }
+    try {
+        $oneClickCaptcha->showCaptcha();
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+} elseif (isset($_REQUEST['position'][0], $_REQUEST['position'][1])) {
+    if ($oneClickCaptcha->validate((int)$_REQUEST['position'][0], (int)$_REQUEST['position'][1])) {
+        echo '<h3>You are human!!</h3>';
+    } else {
+        echo '<h3>Wrong!</h3>';
     }
 }
 

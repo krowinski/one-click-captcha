@@ -1,8 +1,13 @@
 <?php
+declare(strict_types=1);
 
 use OneClickCaptcha\Config\Config;
+use PHPUnit\Framework\TestCase;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+/**
+ * Class ConfigTest
+ */
+class ConfigTest extends TestCase
 {
     /**
      * @var Config
@@ -17,7 +22,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldDefaultsBeSet()
+    public function shouldDefaultsBeSet(): void
     {
         $this->assertSame(400, $this->config->getBackgroundWidth());
         $this->assertSame(200, $this->config->getBackgroundHeight());
@@ -31,7 +36,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldSettersSet()
+    public function shouldSettersSet(): void
     {
         $this->config->setBackgroundWidth(100);
         $this->assertSame(100, $this->config->getBackgroundWidth());

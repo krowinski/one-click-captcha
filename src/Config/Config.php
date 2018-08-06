@@ -1,8 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace OneClickCaptcha\Config;
 
-
+/**
+ * Class Config
+ * @package OneClickCaptcha\Config
+ */
 class Config
 {
     /**
@@ -39,96 +43,114 @@ class Config
     /**
      * @return string
      */
-    public function getBackgroundColor()
+    public function getBackgroundColor(): string
     {
         return $this->backgroundColor;
     }
 
     /**
      * @param string $backgroundColor
+     * @return Config
      */
-    public function setBackgroundColor($backgroundColor)
+    public function setBackgroundColor(string $backgroundColor): self
     {
         $this->backgroundColor = $backgroundColor;
+
+        return $this;
     }
 
     /**
      * @return int
      */
-    public function getBackgroundHeight()
+    public function getBackgroundHeight(): int
     {
         return $this->backgroundHeight;
     }
 
     /**
      * @param int $backgroundHeight
+     * @return Config
      */
-    public function setBackgroundHeight($backgroundHeight)
+    public function setBackgroundHeight(int $backgroundHeight): self
     {
         $this->backgroundHeight = $backgroundHeight;
+
+        return $this;
     }
 
     /**
      * @return int
      */
-    public function getBackgroundWidth()
+    public function getBackgroundWidth(): int
     {
         return $this->backgroundWidth;
     }
 
     /**
      * @param int $backgroundWidth
+     * @return Config
      */
-    public function setBackgroundWidth($backgroundWidth)
+    public function setBackgroundWidth(int $backgroundWidth): self
     {
         $this->backgroundWidth = $backgroundWidth;
+
+        return $this;
     }
 
     /**
      * @return int
      */
-    public function getCircleAmount()
+    public function getCircleAmount(): int
     {
         return $this->circleAmount;
     }
 
     /**
      * @param int $circleAmount
+     * @return Config
      */
-    public function setCircleAmount($circleAmount)
+    public function setCircleAmount(int $circleAmount): self
     {
         $this->circleAmount = $circleAmount;
+
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getCircleColor()
+    public function getCircleColor(): string
     {
         return $this->circleColor;
     }
 
     /**
      * @param string $circleColor
+     * @return Config
      */
-    public function setCircleColor($circleColor)
+    public function setCircleColor(string $circleColor): self
     {
         $this->circleColor = $circleColor;
+
+        return $this;
     }
 
     /**
      * @return int
      */
-    public function getCircleSize()
+    public function getCircleSize(): int
     {
         return $this->circleSize;
     }
 
     /**
      * @param int $circleSize
+     * @return Config
      */
-    public function setCircleSize($circleSize)
+    public function setCircleSize(int $circleSize): self
     {
         $this->circleSize = $circleSize;
+
+        return $this;
     }
 }

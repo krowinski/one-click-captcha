@@ -1,13 +1,22 @@
 <?php
+declare(strict_types=1);
 
 use Imagine\Draw\DrawerInterface;
+use Imagine\Image\ImageInterface;
+use Imagine\Image\ImagineInterface;
+use Imagine\Image\Palette\Color\ColorInterface;
+use Imagine\Image\Palette\PaletteInterface;
 use OneClickCaptcha\Config\Config;
-use OneClickCaptcha\Repository\Post;
-use OneClickCaptcha\Proxy\ImagineProxy;
+use OneClickCaptcha\Proxy\ImageProxy;
+use OneClickCaptcha\Repository\StorageInterface;
 use OneClickCaptcha\Service\OneClickCaptchaService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-
-class OneClickCaptchaServiceTest extends \PHPUnit_Framework_TestCase
+/**
+ * Class OneClickCaptchaServiceTest
+ */
+class OneClickCaptchaServiceTest extends TestCase
 {
     /**
      * @var OneClickCaptchaService
@@ -16,112 +25,61 @@ class OneClickCaptchaServiceTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $configStub = $this->getMockBuilder('OneClickCaptcha\Config\Config')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-        $postStub = $this->getMockBuilder('OneClickCaptcha\Repository\Post')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $configStub = new Config();
+        /** @var StorageInterface|MockObject $postStub */
+        $postStub = $this->createMock(StorageInterface::class);
         $postStub->method('get')->willReturnCallback(
             function ($name) {
-                if (Post::LAST_REQUEST === $name)
-                {
+                if (StorageInterface::LAST_REQUEST === $name) {
                     return [
-                        Post::POSITION_X => 1,
-                        Post::POSITION_Y => 1,
+                        StorageInterface::POSITION_X => 1,
+                        StorageInterface::POSITION_Y => 1,
                     ];
                 }
+
                 return 1;
             }
         );
 
-        $imagineProxyStub = $this->getMockBuilder('OneClickCaptcha\Proxy\ImagineProxy')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $imageInterface = $this->createMock(ImageInterface::class);
+        $imageInterface->method('draw')->willReturn($this->createMock(DrawerInterface::class));
 
-        $ImagineInterfaceStub = $this->getMockBuilder('Imagine\Image\ImagineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $imagineInterfaceStub = $this->createMock(ImagineInterface::class);
+        $imagineInterfaceStub->method('create')->willReturn($imageInterface);
 
-        $imageInterface = $this->getMockBuilder('Imagine\Image\ImageInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $imageInterface->method('draw')->willReturn(
-            $this->getMockBuilder('Imagine\Draw\DrawerInterface')
-                ->disableOriginalConstructor()
-                ->getMock()
-        );
+        $palette = $this->createMock(PaletteInterface::class);
+        $palette->method('color')->willReturn($this->createMock(ColorInterface::class));
 
-        $ImagineInterfaceStub->method('create')->willReturn($imageInterface);
+        /** @var ImageProxy|MockObject $imagineProxyStub */
+        $imagineProxyStub = $this->createMock(ImageProxy::class);
+        $imagineProxyStub->method('getImage')->willReturn($imagineInterfaceStub);
+        $imagineProxyStub->method('getRGB')->willReturn($palette);
 
-        $imagineProxyStub->method('getImagine')->willReturn($ImagineInterfaceStub);
-
-        $rgnStub = $this->getMockBuilder('Imagine\Image\Palette\RGB')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $rgnStub->method('color')->willReturn(
-            $this->getMockBuilder('Imagine\Image\Palette\Color\ColorInterface')
-                ->disableOriginalConstructor()
-                ->getMock()
-        );
-
-        $imagineProxyStub->method('getRGB')->willReturn(
-            $rgnStub
-        );
-
-        $imagineProxyStub->method('getBox')->willReturn(
-            $this->getMockBuilder('Imagine\Image\BoxInterface')
-                ->disableOriginalConstructor()
-                ->getMock()
-        );
-
-        $imagineProxyStub->method('getPoint')->willReturn(
-            $this->getMockBuilder('Imagine\Image\PointInterface')
-                ->disableOriginalConstructor()
-                ->getMock()
-        );
-
-        $this->oneClickCaptchaService = new OneClickCaptchaService(
-            $configStub,
-            $postStub,
-            $imagineProxyStub
-        );
+        $this->oneClickCaptchaService = new OneClickCaptchaService($configStub, $postStub, $imagineProxyStub);
     }
 
     /**
      * @test
+     * @throws Exception
      */
-    public function shouldShowCaptcha()
+    public function shouldShowCaptcha(): void
     {
         $this->oneClickCaptchaService->showCaptcha();
 
         $headers = xdebug_get_headers();
 
-        $this->assertEquals("Expires: Thu, 19 Nov 1981 08:52:00 GMT", $headers[1]);
-        $this->assertEquals("Pragma: public", $headers[2]);
-        $this->assertEquals("Cache-Control: public", $headers[3]);
+        $this->assertEquals('Expires: Thu, 19 Nov 1981 08:52:00 GMT', $headers[1]);
+        $this->assertEquals('Pragma: public', $headers[2]);
+        $this->assertEquals('Cache-Control: public', $headers[3]);
     }
 
     /**
      * @test
      */
-    public function shouldValidate()
+    public function shouldValidate(): void
     {
-        $this->assertFalse($this->oneClickCaptchaService->validate('foo', 'foo'));
+        $this->assertFalse($this->oneClickCaptchaService->validate(-1, -5));
         $this->assertFalse($this->oneClickCaptchaService->validate(2, 2));
         $this->assertTrue($this->oneClickCaptchaService->validate(1, 1));
-    }
-
-    /**
-     * @test
-     */
-    public function shouldMoveAwayFromLastClick()
-    {
-        $reflection = new \ReflectionClass(get_class($this->oneClickCaptchaService));
-        $method = $reflection->getMethod('moveAwayFromLastClick');
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($this->oneClickCaptchaService, [1]);
     }
 }
