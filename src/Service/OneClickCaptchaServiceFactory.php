@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
+
 namespace OneClickCaptcha\Service;
 
 use Imagine\Gd\Imagine;
 use OneClickCaptcha\Config\Config;
-use OneClickCaptcha\Proxy\ImagineProxy;
-use OneClickCaptcha\Repository\SessionPostRepository;
+use OneClickCaptcha\Proxy\ImageProxy;
+use OneClickCaptcha\Repository\SessionStorageInterfaceRepository;
 
 /**
  * Class OneClickCaptchaServiceFactory
@@ -16,12 +18,12 @@ class OneClickCaptchaServiceFactory
     /**
      * @return OneClickCaptchaService
      */
-    public function getOneClickCaptcha()
+    public function getOneClickCaptcha(): OneClickCaptchaService
     {
         return new OneClickCaptchaService(
             new Config(),
-            new SessionPostRepository(),
-            new ImagineProxy(new Imagine())
+            new SessionStorageInterfaceRepository(),
+            new ImageProxy(new Imagine())
         );
     }
 
@@ -29,12 +31,12 @@ class OneClickCaptchaServiceFactory
      * @param Config $config
      * @return OneClickCaptchaService
      */
-    public function getOneClickCaptchaUsingConfig(Config $config)
+    public function getOneClickCaptchaUsingConfig(Config $config): OneClickCaptchaService
     {
         return new OneClickCaptchaService(
             $config,
-            new SessionPostRepository(),
-            new ImagineProxy(new Imagine())
+            new SessionStorageInterfaceRepository(),
+            new ImageProxy(new Imagine())
         );
     }
 }

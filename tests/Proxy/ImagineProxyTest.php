@@ -1,11 +1,20 @@
 <?php
+declare(strict_types=1);
 
-use OneClickCaptcha\Proxy\ImagineProxy;
+use Imagine\Image\Palette\RGB;
+use Imagine\Image\Point;
+use Imagine\Image\Box;
+use Imagine\Image\ImagineInterface;
+use OneClickCaptcha\Proxy\ImageProxy;
+use PHPUnit\Framework\TestCase;
 
-class ImagineProxyTest extends \PHPUnit_Framework_TestCase
+/**
+ * Class ImagineProxyTest
+ */
+class ImagineProxyTest extends TestCase
 {
     /**
-     * @var ImagineProxy
+     * @var ImageProxy
      */
     private $imagineProxy;
 
@@ -14,42 +23,42 @@ class ImagineProxyTest extends \PHPUnit_Framework_TestCase
         /**
          * @var Imagine\Image\ImagineInterface $stub
          */
-        $stub = $this->getMockBuilder('Imagine\Image\ImagineInterface')
+        $stub = $this->getMockBuilder(ImagineInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->imagineProxy = new ImagineProxy($stub);
+        $this->imagineProxy = new ImageProxy($stub);
     }
 
     /**
      * @test
      */
-    public function shouldReturnInstanceOfBox()
+    public function shouldReturnInstanceOfBox(): void
     {
-        $this->assertInstanceOf('Imagine\Image\Box', $this->imagineProxy->getBox(1, 1));
+        $this->assertInstanceOf(Box::class, $this->imagineProxy->getBox(1, 1));
     }
 
     /**
      * @test
      */
-    public function shouldReturnInstanceOfPoint()
+    public function shouldReturnInstanceOfPoint(): void
     {
-        $this->assertInstanceOf('Imagine\Image\Point', $this->imagineProxy->getPoint(1, 1));
+        $this->assertInstanceOf(Point::class, $this->imagineProxy->getPoint(1, 1));
     }
 
     /**
      * @test
      */
-    public function shouldReturnInstanceOfRGB()
+    public function shouldReturnInstanceOfRGB(): void
     {
-        $this->assertInstanceOf('Imagine\Image\Palette\RGB', $this->imagineProxy->getRGB());
+        $this->assertInstanceOf(RGB::class, $this->imagineProxy->getRGB());
     }
 
     /**
      * @test
      */
-    public function shouldReturnInstanceOfImagine()
+    public function shouldReturnInstanceOfImagine(): void
     {
-        $this->assertInstanceOf('Imagine\Image\ImagineInterface', $this->imagineProxy->getImagine());
+        $this->assertInstanceOf(ImagineInterface::class, $this->imagineProxy->getImage());
     }
 }
