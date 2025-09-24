@@ -1,28 +1,28 @@
 <?php
+
 declare(strict_types=1);
+
+namespace Config;
 
 use OneClickCaptcha\Config\Config;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class ConfigTest
- */
 class ConfigTest extends TestCase
 {
     /**
      * @var Config
      */
-    private $config;
+    private Config $config;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->config = new Config();
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldDefaultsBeSet(): void
+    public function testShouldDefaultsBeSet(): void
     {
         $this->assertSame(400, $this->config->getBackgroundWidth());
         $this->assertSame(200, $this->config->getBackgroundHeight());
@@ -34,9 +34,9 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldSettersSet(): void
+    public function testShouldSettersSet(): void
     {
         $this->config->setBackgroundWidth(100);
         $this->assertSame(100, $this->config->getBackgroundWidth());

@@ -6,18 +6,43 @@
     "captcha"
   ],
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Kacper Rowiński",
+      "email": "kacper.rowinski@gmail.com"
+    }
+  ],
   "type": "library",
   "require": {
-    "php": ">=7.1",
-    "imagine/imagine": "^0.7.1"
+    "php": ">=8.4",
+    "imagine/imagine": "^1.5"
   },
   "require-dev": {
-    "ext-xdebug": "*",
-    "phpunit/phpunit": "~7.0"
+    "kubawerlos/php-cs-fixer-custom-fixers": "^3.34",
+    "monolog/monolog": "^3.9",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^12.3",
+    "symplify/easy-coding-standard": "^12.1"
   },
   "autoload": {
     "psr-4": {
       "OneClickCaptcha\\": "src/"
     }
-  }
+  },
+  "scripts": {
+    "cs:check": "ecs check",
+    "cs:fix": "ecs check --fix",
+    "phpstan:analyse": "phpstan analyse -cphpstan.neon",
+    "sa": [
+      "@cs:check",
+      "@phpstan:analyse"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }

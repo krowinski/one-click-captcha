@@ -1,28 +1,25 @@
 <?php
+
 declare(strict_types=1);
 
-use Imagine\Image\Palette\RGB;
-use Imagine\Image\Point;
+namespace Proxy;
+
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
+use Imagine\Image\Palette\RGB;
+use Imagine\Image\Point;
 use OneClickCaptcha\Proxy\ImageProxy;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class ImagineProxyTest
- */
 class ImagineProxyTest extends TestCase
 {
     /**
      * @var ImageProxy
      */
-    private $imagineProxy;
+    private ImageProxy $imagineProxy;
 
-    public function setUp()
+    protected function setUp(): void
     {
-        /**
-         * @var Imagine\Image\ImagineInterface $stub
-         */
         $stub = $this->getMockBuilder(ImagineInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -31,33 +28,33 @@ class ImagineProxyTest extends TestCase
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldReturnInstanceOfBox(): void
+    public function testShouldReturnInstanceOfBox(): void
     {
         $this->assertInstanceOf(Box::class, $this->imagineProxy->getBox(1, 1));
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldReturnInstanceOfPoint(): void
+    public function testShouldReturnInstanceOfPoint(): void
     {
         $this->assertInstanceOf(Point::class, $this->imagineProxy->getPoint(1, 1));
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldReturnInstanceOfRGB(): void
+    public function testShouldReturnInstanceOfRGB(): void
     {
         $this->assertInstanceOf(RGB::class, $this->imagineProxy->getRGB());
     }
 
     /**
-     * @test
+     *
      */
-    public function shouldReturnInstanceOfImagine(): void
+    public function testShouldReturnInstanceOfImagine(): void
     {
         $this->assertInstanceOf(ImagineInterface::class, $this->imagineProxy->getImage());
     }

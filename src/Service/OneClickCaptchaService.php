@@ -1,69 +1,37 @@
 <?php
+
 declare(strict_types=1);
 
 namespace OneClickCaptcha\Service;
 
+use Exception;
 use Imagine\Draw\DrawerInterface;
 use OneClickCaptcha\Config\Config;
-use OneClickCaptcha\Repository\StorageInterface;
 use OneClickCaptcha\Proxy\ImageProxy;
+use OneClickCaptcha\Repository\StorageInterface;
+use RuntimeException;
 
-/**
- * Class OneClickCaptchaService
- * @package OneClickCaptcha\Service
- */
 class OneClickCaptchaService
 {
-    /**
-     * @var DrawerInterface
-     */
-    private $draw;
-    /**
-     * @var Config
-     */
-    private $config;
-    /**
-     * @var StorageInterface
-     */
-    private $post;
-    /**
-     * @var ImageProxy
-     */
-    private $image;
-    /**
-     * @var int
-     */
-    private $x;
-    /**
-     * @var int
-     */
-    private $y;
+    private DrawerInterface $draw;
+    private int $x = 0;
+    private int $y = 0;
 
-    /**
-     * @param Config $config
-     * @param StorageInterface $post
-     * @param ImageProxy $image
-     */
     public function __construct(
-        Config $config,
-        StorageInterface $post,
-        ImageProxy $image
+        private readonly Config $config,
+        private readonly StorageInterface $storage,
+        private readonly ImageProxy $image
     ) {
-        $this->config = $config;
-        $this->post = $post;
-        $this->image = $image;
     }
 
-    /**
-     * Generate image
-     * @throws \Exception
-     */
-    public function showCaptcha(): void
+    public function renderCaptcha(): void
     {
-        $image = $this->image->getImage()->create(
-            $this->image->getBox($this->config->getBackgroundWidth(), $this->config->getBackgroundHeight()),
-            $this->image->getRGB()->color($this->config->getBackgroundColor(), 100)
-        );
+        $image = $this->image->getImage()
+            ->create(
+                $this->image->getBox($this->config->getBackgroundWidth(), $this->config->getBackgroundHeight()),
+                $this->image->getRGB()
+                    ->color($this->config->getBackgroundColor(), 100)
+            );
         $this->draw = $image->draw();
 
         for ($i = 1; $i <= $this->config->getCircleAmount(); ++$i) {
@@ -79,9 +47,23 @@ class OneClickCaptchaService
     }
 
     /**
+     * Validates if clicked circle is correct one.
+     */
+    public function validate(int $positionX, int $positionY): bool
+    {
+        $this->storage->saveLastRequest($positionX, $positionY);
+        $distance = self::calculateDistance(
+            $positionX,
+            $this->storage->get(StorageInterface::POSITION_X),
+            $positionY,
+            $this->storage->get(StorageInterface::POSITION_Y)
+        );
+
+        return $distance < $this->storage->get(StorageInterface::RADIUS);
+    }
+
+    /**
      * Generates circles.
-     * @param bool $createBreakCircle
-     * @throws \Exception
      */
     private function generateCircle(bool $createBreakCircle): void
     {
@@ -97,17 +79,17 @@ class OneClickCaptchaService
             $this->moveAwayFromLastClick($min);
 
             // save circle position
-            $this->post->save($this->x, $this->y, $min);
+            $this->storage->save($this->x, $this->y, $min);
 
             // "move" cut circle
-            $z1 = random_int(-340, 0);
-            $z1_left = 340 + $z1;
+            $z1 = self::rand(-340, 0);
+            $z1Left = 340 + $z1;
 
-            $z2 = random_int(0, 340);
-            $z2_left = 340 - $z2;
+            $z2 = self::rand(0, 340);
+            $z2Left = 340 - $z2;
 
-            $z2 += $z1_left;
-            $z1 -= $z2_left;
+            $z2 += $z1Left;
+            $z1 -= $z2Left;
 
             $start = $z1;
             $end = $z2;
@@ -118,45 +100,41 @@ class OneClickCaptchaService
             $this->image->getBox($this->config->getCircleSize(), $this->config->getCircleSize()),
             $start,
             $end,
-            $this->image->getRGB()->color($this->config->getCircleColor())
+            $this->image->getRGB()
+                ->color($this->config->getCircleColor())
         );
     }
 
-    /**
-     * @param int $min
-     * @return int
-     * @throws \Exception
-     */
     private function getRandomX(int $min): int
     {
-        return random_int($min, $this->config->getBackgroundWidth() - $min);
-
+        return self::rand($min, $this->config->getBackgroundWidth() - $min);
     }
 
-    /**
-     * @param int $min
-     * @return int
-     * @throws \Exception
-     */
+    private static function rand(int $min, int $max): int
+    {
+        try {
+            return random_int($min, $max);
+        } catch (Exception $e) {
+            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
     private function getRandomY(int $min): int
     {
-        return random_int($min, $this->config->getBackgroundHeight() - $min);
+        return self::rand($min, $this->config->getBackgroundHeight() - $min);
     }
 
-    /**
-     * @param int $min
-     * @throws \Exception
-     */
     private function moveAwayFromLastClick(int $min): void
     {
-        if (null !== $this->post->get(StorageInterface::LAST_REQUEST)) {
+        $lastRequest = $this->storage->getLastRequest();
+        if ($lastRequest !== null) {
             while (true) {
                 if ($min < self::calculateDistance(
-                        $this->post->get(StorageInterface::LAST_REQUEST)[StorageInterface::POSITION_X],
-                        $this->x,
-                        $this->post->get(StorageInterface::LAST_REQUEST)[StorageInterface::POSITION_Y],
-                        $this->y
-                    )
+                    $lastRequest[StorageInterface::POSITION_X],
+                    $this->x,
+                    $lastRequest[StorageInterface::POSITION_Y],
+                    $this->y
+                )
                 ) {
                     break;
                 }
@@ -170,33 +148,9 @@ class OneClickCaptchaService
 
     /**
      * Calculate distance using pattern to find point in the circle.
-     * @param int $mx
-     * @param int $cx
-     * @param int $my
-     * @param int $cy
-     * @return int
      */
     private static function calculateDistance(int $mx, int $cx, int $my, int $cy): int
     {
         return (int)round(sqrt(($mx - $cx) * ($mx - $cx) + ($my - $cy) * ($my - $cy)));
-    }
-
-    /**
-     * Validates if clicked circle is correct one.
-     * @param int $positionX
-     * @param int $positionY
-     * @return bool
-     */
-    public function validate(int $positionX, int $positionY): bool
-    {
-        $this->post->saveLastRequest($positionX, $positionY);
-        $distance = self::calculateDistance(
-            $positionX,
-            $this->post->get(StorageInterface::POSITION_X),
-            $positionY,
-            $this->post->get(StorageInterface::POSITION_Y)
-        );
-
-        return $distance < $this->post->get(StorageInterface::RADIUS);
     }
 }

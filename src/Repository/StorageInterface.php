@@ -1,35 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
 namespace OneClickCaptcha\Repository;
 
-/**
- * Interface PostInterface
- * @package OneClickCaptcha\Repository
- */
 interface StorageInterface
 {
-    public const POSITION_X = 'positionX';
-    public const POSITION_Y = 'positionY';
-    public const RADIUS = 'radius';
-    public const LAST_REQUEST = 'last_position';
+    public const string POSITION_X = 'positionX';
+    public const string POSITION_Y = 'positionY';
+    public const string RADIUS = 'radius';
+    public const string LAST_REQUEST = 'last_position';
 
-    /**
-     * @param int $positionX
-     * @param int $positionY
-     * @param float $radius
-     */
-    public function save(int $positionX, int $positionY, float $radius);
-
-    /**
-     * @param string $name
-     * @return mixed
-     */
-    public function get(string $name);
-
-    /**
-     * @param int $positionX
-     * @param int $positionY
-     */
+    public function save(int $positionX, int $positionY, float $radius): void;
+    public function get(string $name): mixed;
     public function saveLastRequest(int $positionX, int $positionY): void;
+
+    /**
+     * @return array<string, int>
+     */
+    public function getLastRequest(): ?array;
 }
